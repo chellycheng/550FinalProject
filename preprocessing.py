@@ -1,7 +1,10 @@
 import numpy as np
-
+import torch
 def tokenize_corpus(corpus):
     tokens = [x.split() for x in corpus]
+    return tokens
+
+def generate_pair(corpus):
     tokenized_corpus = tokenize_corpus(corpus)
     vocabulary = []
     for sentence in tokenized_corpus:
@@ -31,3 +34,31 @@ def tokenize_corpus(corpus):
 
     idx_pairs = np.array(idx_pairs)  # it will be useful to have this as numpy array
     return idx_pairs
+
+class MyDataset(torch.utils.data.Dataset):
+    def __init__(self, lable, corpus):
+        if lable == 'train':
+            self.word_pair_lists = generate_pair(corpus)
+
+        elif lable == 'test':
+            self.word_pair_lists = generate_pair(corpus)
+            self.labels = None
+
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, index):
+        label = -1
+        image = self.images[index]
+        image = Image.fromarray(image.reshape(128, 128))
+        if self.labels is not None:
+            label = self.labels[index]
+
+        if self.transform is not None:
+            image = self.transform(image)
+            image -= image.mean()
+            image /= image.std()
+            image /= 255
+        return image, label

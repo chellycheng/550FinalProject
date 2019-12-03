@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class wdeb_CBOW_neg(nn.Module):
+class wdeb_SkipGram_neg(nn.Module):
     """Skip gram model of word2vec.
     Attributes:
         emb_size: Embedding size.
@@ -23,7 +23,7 @@ class wdeb_CBOW_neg(nn.Module):
         Returns:
             None
         """
-        super(wdeb_CBOW_neg, self).__init__()
+        super(wdeb_SkipGram_neg, self).__init__()
         self.emb_size = emb_size
         self.emb_dimension = emb_dimension
         self.u_embeddings = nn.Embedding(emb_size, emb_dimension, sparse=True)
@@ -53,8 +53,7 @@ class wdeb_CBOW_neg(nn.Module):
         """
         emb_u = self.u_embeddings(pos_u)
         emb_v = self.v_embeddings(pos_v)
-        h = torch.sum(emb_v, dim=1)/emb_v.shape[1]
-        score = torch.mul(emb_u, h).squeeze()
+        score = torch.mul(emb_u, emb_v).squeeze()
         score = torch.sum(score, dim=1)
         score = F.logsigmoid(score)
         neg_emb_v = self.v_embeddings(neg_v)
@@ -85,7 +84,7 @@ class wdeb_CBOW_neg(nn.Module):
 
 
 def test():
-    model = wdeb_CBOW_neg(100, 100)
+    model = wdeb_SkipGram_neg(100, 100)
     id2word = dict()
     for i in range(100):
         id2word[i] = str(i)
